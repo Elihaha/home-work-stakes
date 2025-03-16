@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
+ * A resolver class for handling HTTP requests and extracting request parameters.
  * @Author zhengxin
  * @Date 2025/3/13
  */
@@ -37,7 +38,7 @@ public class RequestResolver {
         HttpMapping httpMapping = method.getAnnotation(HttpMapping.class);
         String httpMethod = httpMapping.method();
         String url = httpMapping.url();
-        // 构建正则表达式模式和变量名数组
+        // Build regex pattern and variable name array
         StringBuilder regex = new StringBuilder();
         List<String> variables = new ArrayList<>();
         Matcher matcher = Pattern.compile("\\{(\\w+)}").matcher(url);
@@ -70,7 +71,7 @@ public class RequestResolver {
         this.bodyParam = bodyParam;
     }
 
-    // 匹配  路径并返回变量值
+    // Match path and return variable values
     private void parsePathVariables(HttpExchange httpExchange, Map<String, String> variables) {
         Matcher matcher = pattern.matcher(httpExchange.getRequestURI().getPath());
         if (matcher.matches()) {
@@ -86,7 +87,7 @@ public class RequestResolver {
         return method.equals(this.method) && pattern.matcher(path).matches();
     }
 
-    public String[] getVariables( HttpExchange httpExchange) {
+    public String[] getVariables(HttpExchange httpExchange) {
         Map<String, String> variables = new HashMap<>();
 
         parsePathVariables(httpExchange, variables);
@@ -98,7 +99,7 @@ public class RequestResolver {
         return methodParams.stream().map(variables::get).toArray(String[]::new);
     }
 
-    private static void parseParamVariables(HttpExchange httpExchange, Map<String, String> variables) {
+    private void parseParamVariables(HttpExchange httpExchange, Map<String, String> variables) {
         String query = httpExchange.getRequestURI().getQuery();
         if (query != null) {
             String[] params = query.split("&");
@@ -113,7 +114,6 @@ public class RequestResolver {
 
     private void parseBodyVariables(HttpExchange httpExchange, Map<String, String> variableMap) {
         if ("POST".equals(method)) {
-            // 读取请求体
             StringBuilder requestBody = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(httpExchange.getRequestBody()))) {
                 String line;
