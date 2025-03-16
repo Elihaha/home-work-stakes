@@ -17,18 +17,10 @@
 
 ### Lock-Free Design Core
 
-1. **Request Routing Strategy**
+**Request Routing Strategy**
    - Request distribution based on modulo operation of betting project ID
    - Identical betting project requests are routed to the same thread pool
    - Eliminates inter-thread resource contention through lock-free processing
-
-2. **Thread Pool Configuration Optimization**
-   - Thread pool count: Fixed at 4, fully utilizing multi-core CPU resources
-   - Per thread pool configuration:
-     - Core thread count: 1
-     - Maximum thread count: 1
-     - Task queue capacity: 10000
-     - Rejection policy: AbortPolicy
 
 ### Performance Advantages
 
@@ -96,8 +88,6 @@ The session management system ensures consistency through the following mechanis
         * Complements real-time expiration checks
       - Considerations:
         * Acts as a safeguard against memory pressure
-
-
 
 ## HTTP Framework Design
 
