@@ -12,7 +12,7 @@ public class BetOffer {
 
     private final ConcurrentSkipListSet<Stake> rankStore = new ConcurrentSkipListSet<>(Comparator.reverseOrder());
 
-    //key: customerId, value: stake
+    //key: customerId, value: stake record
     private final Map<String, Stake> customerToStakeStore = new HashMap<>();
 
     private static final int MAX_SIZE = 20;
@@ -43,14 +43,14 @@ public class BetOffer {
             return;
         }
 
-        //如果当前offer小于20个,且老值不存在，直接添加
+        //If current offer has less than 20 stakes and old value doesn't exist, add directly
         if (rankStore.size() < MAX_SIZE) {
             rankStore.add(stake);
             customerToStakeStore.put(customerId, stake);
             return;
         }
 
-        //如果当前offer大于20个，且老值不存在，只处理大于排名20的情况
+        //If current offer has more than 20 stakes and old value doesn't exist, only process if value is greater than rank 20
         if (stake.getValue() > getFinalStake()) {
             rankStore.add(stake);
             Stake last = rankStore.pollLast();
@@ -65,13 +65,13 @@ public class BetOffer {
     public List<Stake> getSnapshot() {
         List<Stake> snapshot = new ArrayList<>(rankStore.clone());
 
-        // 同一个customerId 在做更新的时候 极端情况会有旧值存在，需要过滤
+        // Filter out old values that may exist in extreme cases when updating the same customerId
         Map<String, Boolean> idMap = new HashMap<>();
         snapshot = snapshot.stream()
                 .filter(stake -> idMap.putIfAbsent(stake.getCustomerId(), true) == null)
                 .collect(Collectors.toList());
 
-        //由于先添加，后删除，快照可能会在极端的时刻达到21个
+        //Due to add-then-remove operations, snapshot may have 21 entries in extreme moments
         if (snapshot.size() > MAX_SIZE) {
             snapshot = snapshot.subList(0, MAX_SIZE);
         }

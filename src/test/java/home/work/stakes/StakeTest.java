@@ -56,7 +56,7 @@ public class StakeTest {
 
     @Test
     public void testBetOfferAdd() {
-        // 测试分支 1：老值存在且新值小于老值
+        // Test Case 1: Old value exists and new value is less than old value
         BetOffer betOffer1 = mockBetOffer(20);
         Stake stake1 = new Stake(0,"customer1");
         betOffer1.addStake(stake1);
@@ -66,7 +66,7 @@ public class StakeTest {
         Assert.assertEquals(1, stake.getValue());
         Assert.assertEquals(20, snapshot.size());
 
-        // 测试分支 2：老值不存在且 offer 数量小于 MAX_SIZE
+        // Test Case 2: Old value doesn't exist and offer count is less than MAX_SIZE
         BetOffer betOffer2 = mockBetOffer(1);
         Stake stake2 = new Stake(2,"customer2");
         betOffer2.addStake(stake2);
@@ -77,7 +77,7 @@ public class StakeTest {
         Assert.assertEquals(0, snapshot2.get(2).getValue());
 
 
-        // 测试分支 3：老值不存在且 offer 数量大于 MAX_SIZE 但新值小于排名 20 的值
+        // Test Case 3: Old value doesn't exist, offer count exceeds MAX_SIZE, and new value is less than the 20th ranked value
         BetOffer betOffer3 = mockBetOffer(20);
         Stake stake3 = new Stake(-1,"customer100");
         betOffer3.addStake(stake3);
@@ -88,7 +88,7 @@ public class StakeTest {
         Assert.assertEquals(20, snapshot3.get(0).getValue());
 
 
-        // 测试分支 4：老值不存在且 offer 数量大于 MAX_SIZE 且新值大于排名 20 的值
+        // Test Case 4: Old value doesn't exist, offer count exceeds MAX_SIZE, and new value is greater than the 20th ranked value
         BetOffer betOffer4 = mockBetOffer(20);
         Stake stake4 = new Stake(21,"customer100");
         betOffer4.addStake(stake4);

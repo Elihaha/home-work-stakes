@@ -16,7 +16,7 @@ public class StakeManager {
     private final Map<Integer, BetOffer> betOfferStore = new ConcurrentHashMap<>(1000);
 
     /**
-     * key: 模数, value: 模数对应的执行器
+     * key: modulus, value: executor corresponding to the modulus
      */
     private final Map<Integer, Executor> executors = new HashMap<>(TASK_SIZE);
 
@@ -34,7 +34,7 @@ public class StakeManager {
     public void add(int betOfferId, Stake stake) {
         BetOffer betOffer = betOfferStore.computeIfAbsent(betOfferId, k -> new BetOffer(stake));
 
-        // 小于排名第20的 stake value, 则不处理
+        // Skip if the stake value is less than the 20th ranked stake
         if (stake.getValue() <= betOffer.getFinalStake()) {
             return;
         }

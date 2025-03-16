@@ -18,7 +18,7 @@ public class Session {
     }
 
     private String generateSessionKey() {
-        //转为16进制
+        //Convert to hexadecimal
         return String.format("%x", createdTm) + String.format("%x", Integer.valueOf(customerId));
     }
 
