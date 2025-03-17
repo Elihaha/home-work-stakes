@@ -16,13 +16,19 @@ public class SessionManager {
     private static final long SESSION_DURATION = 1000 * 60 * 10;
 
     public Session queryAndDeleteExpiredSession(String key) {
-        return sessionStore.computeIfPresent(SessionKeyUtil.getSuffix(key), (k, v) -> {
-            if (v.isExpired(SESSION_DURATION)) {
+        return sessionStore.computeIfPresent(SessionKeyUtil.getSuffix(key), (k, session) -> {
+            if (session.isExpired(SESSION_DURATION)) {
                 sessionStore.remove(key);
                 return null;
             }
-            return v;
+
+            //verify sessionKey
+            if(!key.equals(session.getSessionKey())){
+                return null;
+            }
+            return session;
         });
+
     }
 
     public Session createSession(Integer customerId) {
@@ -30,9 +36,9 @@ public class SessionManager {
     }
 
     public void removeExpiredSession() {
-        sessionStore.forEach((key, session) -> {
+        sessionStore.forEach((k, session) -> {
             if (session.isExpired(SESSION_DURATION)) {
-                sessionStore.remove(key);
+                sessionStore.remove(k);
                 System.out.println("remove expired session ,customerId is: " + session.getCustomerId());
             }
         });
