@@ -8,12 +8,13 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * A resolver class for handling HTTP requests and extracting request parameters.
+ *
  * @Author zhengxin
  * @Date 2025/3/13
  */
@@ -23,14 +24,24 @@ public class RequestResolver {
     private String method;
     private String bodyParam;
 
-    private final List<String> methodParams;
+    private final Parameter[] methodParams;
+
+    /**
+     * key: method param type
+     * value: converter function
+     */
+    private final Map<Class, Function<String, Object>> converterMap = new HashMap<>();
+
 
     public RequestResolver(Method method) {
         buildBodyParams(method);
 
         buildPathParams(method);
 
-        methodParams = Arrays.stream(method.getParameters()).map(Parameter::getName).collect(Collectors.toList());
+        methodParams = method.getParameters();
+
+        converterMap.put(Integer.class, Integer::parseInt);
+        converterMap.put(String.class, String::valueOf);
     }
 
 
@@ -87,7 +98,7 @@ public class RequestResolver {
         return method.equals(this.method) && pattern.matcher(path).matches();
     }
 
-    public String[] getVariables(HttpExchange httpExchange) {
+    public Object[] getVariables(HttpExchange httpExchange) {
         Map<String, String> variables = new HashMap<>();
 
         parsePathVariables(httpExchange, variables);
@@ -96,7 +107,18 @@ public class RequestResolver {
 
         parseBodyVariables(httpExchange, variables);
 
-        return methodParams.stream().map(variables::get).toArray(String[]::new);
+        return Arrays.stream(methodParams).map(p -> pickAndConvert(p, variables)).toArray(Object[]::new);
+    }
+
+    private Object pickAndConvert(Parameter p, Map<String, String> variables) {
+        String name = p.getName();
+        String value = variables.get(name);
+        if (value == null) {
+            return null;
+        } else {
+            Function<String, Object> converter = converterMap.get(p.getType());
+            return converter.apply(value);
+        }
     }
 
     private void parseParamVariables(HttpExchange httpExchange, Map<String, String> variables) {

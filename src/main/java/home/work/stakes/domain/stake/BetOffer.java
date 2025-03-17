@@ -13,7 +13,7 @@ public class BetOffer {
     private final ConcurrentSkipListSet<Stake> rankStore = new ConcurrentSkipListSet<>(Comparator.reverseOrder());
 
     //key: customerId, value: stake record
-    private final Map<String, Stake> customerToStakeStore = new HashMap<>();
+    private final Map<Integer, Stake> customerToStakeStore = new HashMap<>();
 
     private static final int MAX_SIZE = 20;
 
@@ -31,7 +31,7 @@ public class BetOffer {
 
 
     public void addStake(Stake stake) {
-        String customerId = stake.getCustomerId();
+        int customerId = stake.getCustomerId();
         Stake old = customerToStakeStore.get(customerId);
 
         if (old != null) {
@@ -54,7 +54,7 @@ public class BetOffer {
         if (stake.getValue() > getFinalStake()) {
             rankStore.add(stake);
             Stake last = rankStore.pollLast();
-            if(last != null) {
+            if (last != null) {
                 customerToStakeStore.remove(last.getCustomerId());
             }
 
@@ -65,8 +65,12 @@ public class BetOffer {
     public List<Stake> getSnapshot() {
         List<Stake> snapshot = new ArrayList<>(rankStore.clone());
 
+        return filter(snapshot);
+    }
+
+    private List<Stake> filter(List<Stake> snapshot) {
         // Filter out old values that may exist in extreme cases when updating the same customerId
-        Map<String, Boolean> idMap = new HashMap<>();
+        Map<Integer, Boolean> idMap = new HashMap<>();
         snapshot = snapshot.stream()
                 .filter(stake -> idMap.putIfAbsent(stake.getCustomerId(), true) == null)
                 .collect(Collectors.toList());

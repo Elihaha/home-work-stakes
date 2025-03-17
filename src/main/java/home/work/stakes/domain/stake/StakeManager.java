@@ -31,7 +31,7 @@ public class StakeManager {
         }
     }
 
-    public void add(int betOfferId, Stake stake) {
+    public void add(Integer betOfferId, Stake stake) {
         BetOffer betOffer = betOfferStore.computeIfAbsent(betOfferId, k -> new BetOffer(stake));
 
         // Skip if the stake value is less than the 20th ranked stake
@@ -43,7 +43,7 @@ public class StakeManager {
         executor.execute(() -> betOffer.addStake(stake));
     }
 
-    public List<Stake> getHighStakes(int betOfferId) {
+    public List<Stake> getHighStakes(Integer betOfferId) {
         BetOffer betOffer = betOfferStore.get(betOfferId);
         if (betOffer == null) {
             return null;

@@ -1,28 +1,30 @@
 package home.work.stakes.domain.session;
 
+import home.work.stakes.util.SessionKeyUtil;
+
 /**
  * @Author zhengxin
  * @Date 2025/3/13
  */
 public class Session {
-    private final String customerId;
+    private final Integer customerId;
 
-    private final Long createdTm;
+    private final long createdTm;
 
     private final String sessionKey;
 
-    public Session(String customerId) {
+    public Session(Integer customerId) {
         this.customerId = customerId;
         this.createdTm = System.currentTimeMillis();
         this.sessionKey = generateSessionKey();
     }
 
     private String generateSessionKey() {
-        //Convert to hexadecimal
-        return String.format("%x", createdTm) + String.format("%x", Integer.valueOf(customerId));
+
+        return SessionKeyUtil.toPrefix(createdTm) + SessionKeyUtil.toSuffix(customerId);
     }
 
-    public boolean isExpired(Long duration) {
+    public boolean isExpired(long duration) {
         return System.currentTimeMillis() - createdTm > duration;
     }
 
@@ -30,7 +32,7 @@ public class Session {
         return sessionKey;
     }
 
-    public String getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 }

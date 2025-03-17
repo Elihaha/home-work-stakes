@@ -22,23 +22,23 @@ public class BizService {
         this.stakeManager = stakeManager;
     }
 
-    public String session(String customerId) {
+    public String session(Integer customerId) {
         return sessionManager.createSession(customerId).getSessionKey();
     }
 
-    public void stake(String betOfferId, String sessionKey, String stakeValue) {
-        Session session = sessionManager.getSessionByKey(sessionKey);
+    public void stake(Integer betOfferId, String sessionKey, int stakeValue) {
+        Session session = sessionManager.queryAndDeleteExpiredSession(sessionKey);
         if (session == null) {
             return;
         }
-        Stake stake = new Stake(Integer.parseInt(stakeValue), session.getCustomerId());
+        Stake stake = new Stake(stakeValue, session.getCustomerId());
 
-        stakeManager.add(Integer.parseInt(betOfferId), stake);
+        stakeManager.add(betOfferId, stake);
     }
 
 
-    public String highStakes(String betOfferId) {
-        List<Stake> highStakes = stakeManager.getHighStakes(Integer.parseInt(betOfferId));
+    public String highStakes(Integer betOfferId) {
+        List<Stake> highStakes = stakeManager.getHighStakes(betOfferId);
 
         if (highStakes == null || highStakes.isEmpty()) {
             return "";
