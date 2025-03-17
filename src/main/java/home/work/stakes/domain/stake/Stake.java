@@ -10,9 +10,9 @@ public class Stake implements Comparable<Stake> {
 
     private final int value;
 
-    private final String customerId;
+    private final Integer customerId;
 
-    public Stake(int value, String customerId) {
+    public Stake(int value, Integer customerId) {
         this.value = value;
         this.customerId = customerId;
     }
@@ -21,7 +21,7 @@ public class Stake implements Comparable<Stake> {
         return value;
     }
 
-    public String getCustomerId() {
+    public int getCustomerId() {
         return customerId;
     }
 
@@ -32,7 +32,7 @@ public class Stake implements Comparable<Stake> {
             return compare;
         }
 
-        return customerId.compareTo(o.getCustomerId());
+        return Integer.compare(this.customerId, o.getCustomerId());
     }
 
     public String toResult() {
